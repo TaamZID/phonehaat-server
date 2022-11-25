@@ -24,15 +24,34 @@ async function run() {
     serverApi: ServerApiVersion.v1,
   });
   try {
-    const serviceCollection = client.db("mobilehaat").collection("services");
-    const reviewCollection = client.db("mobilehaat").collection("reviews");
+    const categoryCollection = client.db("mobilehaat").collection("category");
+    const productCollection = client.db("mobilehaat").collection("product");
 
-    app.get("/services", async (req, res) => {
+    app.get("/category", async (req, res) => {
       const query = {};
-      const cursor = serviceCollection.find(query);
-      const services = await cursor.sort({ _id: -1 }).toArray();
-      res.send(services);
+      const category = await categoryCollection.find(query).toArray();
+      res.send(category);
     });
+
+    app.get("/product", async (req, res) => {
+      const query = {};
+      const product = await productCollection.find(query).toArray();
+      res.send(product);
+    });
+
+    app.get("/category/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const category = await categoryCollection.findOne(query);
+      res.send(category);
+    });
+
+    // app.get("/services", async (req, res) => {
+    //   const query = {};
+    //   const cursor = serviceCollection.find(query);
+    //   const services = await cursor.sort({ _id: -1 }).toArray();
+    //   res.send(services);
+    // });
 
     // app.get("/serviceslimit", async (req, res) => {
     //   const query = {};
