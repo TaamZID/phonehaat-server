@@ -26,6 +26,8 @@ async function run() {
   try {
     const categoryCollection = client.db("mobilehaat").collection("category");
     const productCollection = client.db("mobilehaat").collection("product");
+    const usersCollection = client.db("mobilehaat").collection("users");
+    const bookingCollection = client.db("mobilehaat").collection("bookings");
 
     app.get("/category", async (req, res) => {
       const query = {};
@@ -39,6 +41,50 @@ async function run() {
       res.send(product);
     });
 
+    app.post("/product", async (req, res) => {
+      const product = req.body;
+      const result = await productCollection.insertOne(product);
+      res.send(result);
+    });
+
+    app.get("/users", async (req, res) => {
+      const query = {};
+      const result = await usersCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    app.get("/bookings", async (req, res) => {
+      const query = {};
+      const result = await bookingCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    app.post("/users", async (req, res) => {
+      const user = req.body;
+      const result = await usersCollection.insertOne(user);
+      res.send(result);
+    });
+
+    app.get("/users/seller/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { email };
+      const user = await usersCollection.findOne(query);
+      res.send({ isSeller: user?.role === "Seller" });
+    });
+
+    app.get("/users/admin/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { email };
+      const user = await usersCollection.findOne(query);
+      res.send({ isAdmin: user?.role === "admin" });
+    });
+
+    app.post("/booknow", async (req, res) => {
+      const booknow = req.body;
+      const result = await bookingCollection.insertOne(booknow);
+      res.send(result);
+    });
+
     app.get("/category/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
@@ -46,75 +92,17 @@ async function run() {
       res.send(category);
     });
 
-    // app.get("/services", async (req, res) => {
-    //   const query = {};
-    //   const cursor = serviceCollection.find(query);
-    //   const services = await cursor.sort({ _id: -1 }).toArray();
-    //   res.send(services);
-    // });
-
-    // app.get("/serviceslimit", async (req, res) => {
-    //   const query = {};
-    //   const cursor = serviceCollection.find(query);
-    //   const services = await cursor.sort({ _id: -1 }).limit(3).toArray();
-    //   res.send(services);
-    // });
-
-    app.get("/reviews", async (req, res) => {
-      const query = {};
-      const cursor = reviewCollection.find(query);
-      const reviews = await cursor.toArray();
-      res.send(reviews);
-    });
-
-    app.get("/services/:id", async (req, res) => {
+    app.delete("/users/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
-      const service = await serviceCollection.findOne(query);
-      res.send(service);
-    });
-
-    app.get("/review/:id", async (req, res) => {
-      const id = req.params.id;
-      const query = { _id: ObjectId(id) };
-      const service = await reviewCollection.findOne(query);
-      res.send(service);
-    });
-
-    // app.put("/review/:id", async (req, res) => {
-    //   const id = req.params.id;
-    //   const query = { _id: ObjectId(id) };
-    //   const user = req.body;
-    //   const option = { upsert: true };
-    //   const updatedReview = {
-    //     $set: {
-    //       description: user.description,
-    //     },
-    //   };
-    //   const result = await reviewCollection.updateOne(
-    //     query,
-    //     updatedReview,
-    //     option
-    //   );
-    //   res.send(result);
-    // });
-
-    app.post("/addServices", async (req, res) => {
-      const addService = req.body;
-      const result = await serviceCollection.insertOne(addService);
+      const result = await usersCollection.deleteOne(query);
       res.send(result);
     });
 
-    app.post("/addReviews", async (req, res) => {
-      const addReview = req.body;
-      const result = await reviewCollection.insertOne(addReview);
-      res.send(result);
-    });
-
-    app.delete("/reviews/:id", async (req, res) => {
+    app.delete("/product/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
-      const result = await reviewCollection.deleteOne(query);
+      const result = await productCollection.deleteOne(query);
       res.send(result);
     });
   } finally {
